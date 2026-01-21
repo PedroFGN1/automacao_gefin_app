@@ -12,8 +12,9 @@
     />
     <title>Hello from Electron renderer!</title>
     <link rel="stylesheet" type="text/css" href="./styles.css">
+    <link href="./output.css" rel="stylesheet">
   </head>
-  <body>
+  <body class="flex flex-col items-center justify-center h-screen bg-gray-100">
     <h1>Hello from Electron renderer!</h1>
     <p>👋</p>
     <p id="info"></p>
@@ -22,6 +23,15 @@
 
     <button id="toggle-dark-mode">Toggle Dark Mode</button>
     <button id="reset-to-system">Reset to System Theme</button>
+
+    <button type="button"
+    class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 focus:outline-hidden cursor-pointer focus:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none">
+    Hello Tailwindcss
+    </button>
+    <button type="button"
+    class="btn">
+    Hello dasiyUI
+    </button>
   </body>
   <script src="./renderer.js"></script>
 </html>
