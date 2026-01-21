@@ -1,0 +1,2 @@
+# Aplicação para automação de Tarefas
+Este repositório contém uma aplicação desenvolvida para automatizar tarefas repetitivas e melhorar a eficiência operacional. A aplicação é construída utilizando javascritp e diversas bibliotecas populares para facilitar a integração com diferentes serviços.
