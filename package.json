@@ -1,0 +1,21 @@
+{
+  "name": "automacao_gefin_app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Pedro Ferreira Galvão Neto",
+  "license": "ISC",
+  "description": "Projeto de automação para os processos da GEFIN, aplicação desktop desenvolvida com Electron.",
+  "devDependencies": {
+    "electron": "^40.0.0"
+  },
+  "dependencies": {
+    "puppeteer": "^24.35.0",
+    "xlsx": "^0.18.5"
+  }
+}
