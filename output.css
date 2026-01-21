@@ -445,6 +445,9 @@
   .h-screen {
     height: 100vh;
   }
+  .w-64 {
+    width: calc(var(--spacing) * 64);
+  }
   .cursor-pointer {
     cursor: pointer;
   }
@@ -459,6 +462,9 @@
   }
   .gap-x-2 {
     column-gap: calc(var(--spacing) * 2);
+  }
+  .rounded-full {
+    border-radius: calc(infinity * 1px);
   }
   .rounded-lg {
     border-radius: var(--radius-lg);
