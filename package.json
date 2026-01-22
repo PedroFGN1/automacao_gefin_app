@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.18",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
     "puppeteer": "^24.35.0",
     "tailwindcss": "^4.1.18",
     "xlsx": "^0.18.5"

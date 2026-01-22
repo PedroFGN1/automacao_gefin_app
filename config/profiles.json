@@ -1,0 +1,31 @@
+{
+  "perfis": [
+    {
+      "id": "restituicao-fianca",
+      "nome": "Restituição de Fiança (74)",
+      "url_portal": "https://portal.go.gov.br/pas-acesso-app/app/#/apps",
+      "url_formulario_direto": "https://siofi.sistemas.go.gov.br/siofi/servlet/control?cmd=EfetuarOPExtra",
+      "url_base_sistema": "https://siofi.sistemas.go.gov.br/siofi",
+      "configuracoes_fixas": {
+        "texto_selecao_inicial": "Restituição de Depósito de Fiança (74)",
+        "orgao_codigo": "9995",
+        "receita_debito": "199999219054",
+        "tipo_debito_texto": "CUTE",
+        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "tipo_credito_texto": "Movimento",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
+        "enviar_para_banco": "S",
+        "rascunho": "S"
+      },
+      "mapeamento_colunas": {
+        "PROCESSO": "Processo SEI!",
+        "DATA": "Data de Pagamento",
+        "VALOR": "Valor Atualizado",
+        "NOME": "Nome",
+        "CPF_CNPJ": "CPF | CNPJ",
+        "HISTORICO": "Histórico SIOFI"
+      }
+    }
+  ],
+  "diretorio_saida_padrao": "C:/AutomacaoFinanceira" 
+}
