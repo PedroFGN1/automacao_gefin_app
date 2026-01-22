@@ -21,8 +21,8 @@
         "PROCESSO": "Processo SEI!",
         "DATA": "Data de Pagamento",
         "VALOR": "Valor Atualizado",
-        "NOME": "Nome",
-        "CPF_CNPJ": "CPF | CNPJ",
+        "NOME": "Beneficiário",
+        "CPF_CNPJ": "CPF | CNPJ Beneficiário",
         "HISTORICO": "Histórico SIOFI"
       }
     }
