@@ -17,7 +17,7 @@ const createWindow = () => {
   })
 
   win.loadFile(path.join(__dirname, '../frontend/index.html'));
-  win.webContents.openDevTools(); // Descomente para debug
+  //win.webContents.openDevTools(); // Descomente para debug
   win.removeMenu()
 }
 
