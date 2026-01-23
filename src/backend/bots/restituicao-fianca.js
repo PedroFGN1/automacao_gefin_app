@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 const fileUtils = require('../utils/file-utils');
 const pptUtils = require('../utils/puppeteer-utils');
+const navUtils = require('../utils/navigation-utils');
 const { dialog } = require('electron');
 
 // Função Principal exportada para o Electron
@@ -71,8 +72,9 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
                 // B. Fase 0: Pré-seleção (Finalidade)
                 let contexto = await pptUtils.aguardarContextoDoCampo(page, 'txtFinalidade');
                 await pptUtils.selecionarOpcaoPorTexto(contexto, 'txtFinalidade', configPerfil.configuracoes_fixas.texto_selecao_inicial);
-                
-                const btnContinuar = await contexto.$('input[value="Continuar"], input[value="Avancar"], input[value="Continuar >>"]');
+                await navUtils.delay(500); // Pequena espera para garantir o carregamento
+
+                const btnContinuar = await contexto.$('input[value="Continuar"], input[value="Avancar"]');
                 if (btnContinuar) {
                     await Promise.all([
                         page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
@@ -92,22 +94,21 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
                     page.waitForNavigation({ timeout: 5000 }).catch(()=>null), // Timeout curto pois as vezes é rápido
                     contexto.keyboard.press('Tab')
                 ]);
+                await navUtils.delay(2000); // Espera pós-tab
+
                 contexto = await pptUtils.aguardarContextoDoCampo(page, 'txtOrgao'); // Recaptura
 
-                // Data (Exemplo de tratamento simples)
+                // Data
                 // Se a data vier do ExcelJS como objeto Date:
-                const dataRaw = linha[configPerfil.mapeamento_colunas.DATA];
-                if (dataRaw) {
-                    const dataObj = new Date(dataRaw);
-                    await pptUtils.preencherTexto(contexto, 'txtDiaCredito', String(dataObj.getDate()).padStart(2,'0'));
-                    await pptUtils.preencherTexto(contexto, 'txtMesCredito', String(dataObj.getMonth()+1).padStart(2,'0'));
-                    await pptUtils.preencherTexto(contexto, 'txtAnoCredito', dataObj.getFullYear());
+                const dataObj = navUtils.tratarData(linha[configPerfil.mapeamento_colunas.DATA]);
+                if (dataObj) {
+                    await pptUtils.preencherTexto(contexto, 'txtDiaCredito', String(dataObj.getUTCDate()).padStart(2,'0'));
+                    await pptUtils.preencherTexto(contexto, 'txtMesCredito', String(dataObj.getUTCMonth()+1).padStart(2,'0'));
+                    await pptUtils.preencherTexto(contexto, 'txtAnoCredito', dataObj.getUTCFullYear());
                 }
 
                 // Valor
-                const valor = linha[configPerfil.mapeamento_colunas.VALOR];
-                // Formatação básica de moeda PT-BR
-                const valorFormatado = Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                const valorFormatado = navUtils.formatarMoeda(linha[configPerfil.mapeamento_colunas.VALOR]);
                 await pptUtils.preencherTexto(contexto, 'txtValor', valorFormatado);
 
                 // Beneficiário (Lógica de Injeção e Busca)
@@ -116,24 +117,149 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
                 
                 // Busca ID (Aba oculta)
                 const idBenef = await pptUtils.buscarIdBeneficiario(browser, configPerfil.url_base_sistema, cpfCnpj);
-                
+                if (!idBenef) {
+                    throw new Error(`Beneficiário com CPF/CNPJ ${cpfCnpj} não encontrado no sistema.`);
+                }
+
                 // Injeta
                 await contexto.evaluate((nome, doc, id) => {
                     const iNome = document.querySelector('input[name="nomePessoa"]');
-                    if(iNome) { iNome.value = nome; iNome.removeAttribute('readonly'); iNome.removeAttribute('onchange'); }
+                    if(iNome) { iNome.removeAttribute('readonly'); iNome.removeAttribute('onchange'); iNome.value = nome;}
                     
                     const iDoc = document.querySelector('input[name="cpfCNPJ"]');
-                    if(iDoc) { iDoc.value = String(doc).replace(/\D/g, ''); iDoc.dispatchEvent(new Event('change', {bubbles:true})); }
+                    if(iDoc) iDoc.value = String(doc).replace(/\D/g, '');
 
-                    const iId = document.querySelector('input[name="idPessoa"]');
+                    const iId = document.querySelector('input[name="idPessoa"]'); // hidden
                     if(iId) iId.value = id || '';
+
+                    // Dispara eventos para o formulário "acordar" no campo cpfCNPJ
+                    if(iDoc) iDoc.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    
                 }, nomeBenef, cpfCnpj, idBenef);
 
+                await navUtils.delay(300); // Espera pós-injeção
 
-                // D. Submissão (Incluir)
-                // ... Adicione aqui a lógica de clicar em Incluir, tratar Alert e Confirmar ...
+                // ------- Débito
+                await pptUtils.preencherTexto(contexto, 'txtCodigoReceitaDebito', configPerfil.configuracoes_fixas.receita_debito);
+                
+                contexto = await pptUtils.aguardarContextoDoCampo(page, 'txtTipoContaDebito');
+
+                await Promise.all([
+                    page.waitForNavigation({ timeout: 5000 }).catch(()=>null), // Timeout curto pois as vezes é rápido
+                    contexto.keyboard.press('Tab')
+                ]);
+                await navUtils.delay(1000); // Espera pós-tab
+
+                contexto = await pptUtils.aguardarContextoDoCampo(page, 'txtTipoContaDebito');
+
+                await pptUtils.selecionarOpcaoPorTexto(contexto, 'txtTipoContaDebito', configPerfil.configuracoes_fixas.tipo_debito_texto);
+                await navUtils.delay(500);
+
+                const debito_names = {
+                    banco: 'txtBancoDebito',
+                    agencia: 'txtAgenciaDebito',
+                    conta: 'txtContaDebito'
+                };
+                // { "banco": "104", "agencia": "4204", "conta": "05734669195" }
+                const valoresDebito = configPerfil.configuracoes_fixas.conta_debito;
+                // Preenche Banco
+                await pptUtils.injetarValor(contexto, debito_names, valoresDebito);
+                await navUtils.delay(300);
+
+                // Débito em DDR
+                await pptUtils.selecionarOpcaoPorTexto(contexto, 'cboDDRDebito', configPerfil.configuracoes_fixas.ddr_debito_texto);
+                await navUtils.delay(500);
+
+                // ------- Crédito
+                await pptUtils.selecionarOpcaoPorTexto(contexto, 'txtTipoContaCredito', configPerfil.configuracoes_fixas.tipo_credito_texto);
+                await navUtils.delay(300);
+
+                await pptUtils.preencherTexto(contexto, 'txtBancoCredito', linha[configPerfil.mapeamento_colunas.BANCO_CREDITO]);
+
+                await pptUtils.preencherTexto(contexto, 'txtAgenciaCredito', linha[configPerfil.mapeamento_colunas.AGENCIA_CREDITO]);
+
+                await pptUtils.preencherTexto(contexto, 'txtContaCredito', linha[configPerfil.mapeamento_colunas.CONTA_CREDITO]);
+                
+                await pptUtils.preencherTexto(contexto, 'txtHistorico', linha[configPerfil.mapeamento_colunas.HISTORICO]);
+
+                await navUtils.delay(300);
+
+                await pptUtils.marcarOpcao(contexto, 'txtEnviarBanco', configPerfil.configuracoes_fixas.enviar_para_banco);
+                await navUtils.delay(300);
+
+                await pptUtils.marcarOpcao(contexto, 'txtIsRascunho', configPerfil.configuracoes_fixas.rascunho || 'S');
+                
+
+
+
+                ////////////////////////////////////////////////////////////// D. Submissão (Incluir)
+                
+                // Variável para capturar erro do alert
+                let mensagemErroAlert = null;
+
+                // Prepara o ouvinte de Dialog (Alert/Confirm)
+                const listenerDialog = async dialog => {
+                    mensagemErroAlert = dialog.message();
+                    console.log(`      ⚠️ ALERTA DETECTADO: "${mensagemErroAlert}"`);
+                    await dialog.accept(); // Clica em OK no alerta para destravar
+                };
+                page.on('dialog', listenerDialog);
+
+                // Clica em "Incluir" e espera navegação OU tempo para o alert aparecer
+                const botaoIncluir = await contexto.$('input[value="Incluir"]');
+                if(botaoIncluir) {
+                    await botaoIncluir.click();
+                    
+                    // Espera: Ou a página muda (sucesso) ou um erro aparece (alert)
+                    try {
+                        await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 5000 });
+                    } catch(e) {
+                        // Se der timeout, provavelmente apareceu um alert e a navegação não ocorreu
+                    }
+                }
+
+                // Remove o ouvinte para não atrapalhar o próximo loop
+                page.off('dialog', listenerDialog);
+
+                // D. VERIFICAÇÃO DO RESULTADO DA ETAPA 1
+                if (mensagemErroAlert) {
+                    console.error(`      ❌ FALHA: O site recusou a inclusão. Motivo: ${mensagemErroAlert}`);
+                    throw new Error(`Inclusão recusada: ${mensagemErroAlert}`);
+                }
+
+                // E. TELA DE CONFIRMAÇÃO (A Tabela)
+                // Precisamos verificar se chegamos na tela que tem o botão "Sim"
+
+                //contexto = await pptUtils.aguardarContextoDoCampo(page,'input[value="Sim"]', 5000);
+                contexto = page.frames().find(f => f.name() === 'principal') || page;
+                const botaoConfirmarSim = await contexto.$('input[value="Sim"], input[value="Confirmar"]');
+
+                 if (botaoConfirmarSim) {
+                console.log('   ✅ Validação preliminar aceita. Confirmando operação...');
+                
+                // Tira print da tabela de conferência antes de confirmar
+                await page.screenshot({ path: path.join(diretorios.evidencias,`${idProcesso}_CONFERÊNCIA.png`), fullPage: true });
+
+
+                // CLIQUE FINAL
+                await Promise.all([
+                    page.waitForNavigation({ timeout: 10000 }),
+                    botaoConfirmarSim.click()
+                ]);
+
+                //console.log('      🎉 Operação Concluída com Sucesso!');
+                } else {
+                    // Se não tem alerta mas também não tem botão Sim...
+                    // Pode ser que o erro apareceu escrito na tela em vez de popup
+                    console.warn('      ⚠️ Situação incerta: Não apareceu botão de confirmação nem alerta.');
+                    await page.screenshot({ path: path.join(diretorios.evidencias,`${idProcesso}_ERRO_INCERTO.png`), fullPage: true });
+                }
+
+                await navUtils.delay(2000);
                 // Para teste inicial, vamos apenas tirar print
                 
+
                 const screenshotPath = path.join(diretorios.evidencias, `${idProcesso}_SUCESSO.png`);
                 await page.screenshot({ path: screenshotPath, fullPage: true });
                 

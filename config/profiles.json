@@ -11,19 +11,22 @@
         "orgao_codigo": "9995",
         "receita_debito": "199999219054",
         "tipo_debito_texto": "CUTE",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
         "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
         "tipo_credito_texto": "Movimento",
-        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
         "enviar_para_banco": "S",
         "rascunho": "S"
       },
       "mapeamento_colunas": {
-        "PROCESSO": "Processo SEI!",
-        "DATA": "Data de Pagamento",
+        "PROCESSO": "Proc. SEI",
+        "DATA": "Data da restituição",
         "VALOR": "Valor Atualizado",
         "NOME": "Beneficiário",
-        "CPF_CNPJ": "CPF | CNPJ Beneficiário",
-        "HISTORICO": "Histórico SIOFI"
+        "CPF_CNPJ": "CPF | CNPJ (Beneficiário)",
+        "BANCO_CREDITO": "Banco",
+        "AGENCIA_CREDITO": "Agência",
+        "CONTA_CREDITO": "Conta",
+        "HISTORICO": "Histórico"
       }
     }
   ],

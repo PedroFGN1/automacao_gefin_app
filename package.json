@@ -15,7 +15,8 @@
   "description": "Projeto de automação para os processos da GEFIN, aplicação desktop desenvolvida com Electron.",
   "devDependencies": {
     "daisyui": "^5.5.14",
-    "electron": "^40.0.0"
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.18",

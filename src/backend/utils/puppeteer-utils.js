@@ -2,7 +2,7 @@
 
 // 1. Espera inteligente (Página ou Frame)
 async function aguardarContextoDoCampo(page, nomeCampo, tempoEspera = 15000) {
-    const seletor = `input[name="${nomeCampo}"], select[name="${nomeCampo}"], textarea[name="${nomeCampo}"]`;
+    const seletor = `input[name="${nomeCampo}"], select[name="${nomeCampo}"], textarea[name="${nomeCampo}"], input[value="${nomeCampo}"]`;
     try {
         await page.waitForSelector(seletor, { timeout: tempoEspera });
         return page; // Está na página principal
@@ -50,19 +50,26 @@ async function selecionarOpcaoPorTexto(contexto, nomeSelect, textoAlvo) {
 async function injetarValor(contexto, seletores, valores) {
     // seletores: { nome: 'txtNome', cpf: 'txtCPF' }
     // valores: { nome: 'João', cpf: '123' }
-    await contexto.evaluate((sels, vals) => {
-        // Exemplo genérico de injeção
-        Object.keys(sels).forEach(chave => {
-            const el = document.querySelector(`input[name="${sels[chave]}"]`);
-            if (el) {
-                el.removeAttribute('readonly');
-                el.removeAttribute('onchange');
-                el.classList.remove('disabled');
-                el.value = vals[chave];
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        });
-    }, seletores, valores);
+    try{
+        await contexto.evaluate((sels, vals) => {
+            // Exemplo genérico de injeção
+            Object.keys(sels).forEach(chave => {
+                const el = document.querySelector(`input[name="${sels[chave]}"]`);
+                if (el) {
+                    el.removeAttribute('readonly');
+                    el.removeAttribute('disabled');
+                    el.removeAttribute('onchange');
+                    el.classList.remove('disabled');
+                    el.value = vals[chave];
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    el.dispatchEvent(new Event('blur', { bubbles: true }));
+                }
+            });
+        }, seletores, valores);
+    } catch (e) {
+        console.error('Erro na injeção de valores:', e);
+        throw e; // Para o script se for crucial
+    }
 }
 
 // 5. Busca de ID em Aba Oculta (Browser Auxiliar)
@@ -92,10 +99,57 @@ async function buscarIdBeneficiario(browser, urlBase, docCru) {
     return id;
 }
 
+// 6. Marcar opção (Radio ou Checkbox) por valor
+async function marcarOpcao(frame, nomeCampo, valorAlvo) {
+    // Seletor CSS preciso: Procura input com ESTE nome E ESTE valor
+    const seletor = `input[name="${nomeCampo}"][value="${valorAlvo}"]`;
+    try {
+        // Verifica se o elemento existe
+        const elemento = await frame.$(seletor);
+        if (!elemento) {
+            throw new Error(`Opção com valor "${valorAlvo}" não encontrada para o campo "${nomeCampo}".`);
+        }
+        // Verifica se já está marcado (checked)
+        const isChecked = await frame.$eval(seletor, el => el.checked);
+        if (!isChecked) { await elemento.click();} else {}
+    } catch (error) {
+        console.error(`      ❌ Erro ao marcar opção: ${error.message}`);
+        throw error; // Para o script se for crucial
+    }
+}
+
+async function forcarPreenchimentoBloqueado(contexto, nomeCampo, valor) {
+    const valorStr = valor ? String(valor).trim() : '';
+    if (!valorStr) return;
+
+    try {
+        await contexto.evaluate((nome, val) => {
+            const el = document.querySelector(`input[name="${nome}"], textarea[name="${nome}"]`);
+            if (el) {
+                el.removeAttribute('readonly'); 
+                el.removeAttribute('disabled'); 
+                el.removeAttribute('onchange'); // Remove armadilhas de script
+                el.classList.remove('disabled'); // Remove estilo visual
+                
+                // Injeta o valor
+                el.value = val;
+                
+                // Acorda o sistema para validar o campo
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                el.dispatchEvent(new Event('blur', { bubbles: true }));
+            }
+        }, nomeCampo, valorStr);
+    } catch (e) {
+        console.warn(`Aviso: Falha ao forçar campo ${nomeCampo}.`);
+    }
+}
+
 module.exports = { 
     aguardarContextoDoCampo, 
     preencherTexto, 
     selecionarOpcaoPorTexto, 
     injetarValor,
-    buscarIdBeneficiario
+    buscarIdBeneficiario,
+    marcarOpcao,
+    forcarPreenchimentoBloqueado
 };
