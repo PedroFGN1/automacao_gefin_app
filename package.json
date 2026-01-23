@@ -7,7 +7,27 @@
     "dev": "electron .",
     "watch:css": "npx @tailwindcss/cli -i src/frontend/styles/input.css -o src/frontend/styles/output.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "tailwindcss -i src/frontend/styles/input.css -o src/frontend/styles/output.css"
+    "build:css": "tailwindcss -i src/frontend/styles/input.css -o src/frontend/styles/output.css",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.gefin.automacao",
+    "productName": "Automator GEFIN",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "config/**/*",
+      "package.json",
+      ".cache/**/*"
+    ],
+    "win": {
+      "target": ["portable",
+        "dir"],
+      "icon": "build/icon.ico"
+    }
   },
   "keywords": [],
   "author": "Pedro Ferreira Galvão Neto",
