@@ -138,9 +138,7 @@ const btnFecharConfig = document.getElementById('btnFecharConfig');
 let configAtual = null; // Armazena o JSON original em memória
 
 // LISTA DE CAMPOS QUE O USUÁRIO NÃO PODE EDITAR
-const CHAVES_BLOQUEADAS = [
-    'rascunho'
-];
+const CHAVES_BLOQUEADAS = [];
 
 // Função auxiliar para criar inputs HTML
 function criarInput(label, valor, caminhoChave, tipo = 'text', bloqueado = false) {
