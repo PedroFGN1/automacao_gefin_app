@@ -96,15 +96,24 @@
     </div>
 
     <dialog id="modalConfig" class="modal">
-        <div class="modal-box w-11/12 max-w-5xl h-5/6 flex flex-col">
-            <h3 class="font-bold text-lg mb-2">Editar Configurações (profiles.json)</h3>
-            <p class="text-xs text-warning mb-2">Cuidado: A estrutura JSON deve ser mantida corretamente.</p>
+        <div class="modal-box w-11/12 max-w-5xl h-5/6 flex flex-col bg-base-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-2xl text-primary">⚙️ Configurações do Robô</h3>
+                <button id="btnFecharConfig" class="btn btn-sm btn-circle btn-ghost">✕</button>
+            </div>
             
-            <textarea id="editorConfig" class="textarea textarea-bordered w-full flex-1 font-mono text-xs bg-base-200" spellcheck="false"></textarea>
+            <div class="divider m-0"></div>
+
+            <div id="containerFormConfig" class="flex-1 overflow-y-auto p-4 space-y-6">
+                </div>
             
-            <div class="modal-action">
-                <button id="btnFecharConfig" class="btn">Cancelar</button>
-                <button id="btnSalvarConfig" class="btn btn-success">Salvar Alterações</button>
+            <div class="modal-action border-t border-base-300 pt-4">
+                <span class="text-xs text-warning mr-auto flex items-center gap-2">
+                    ⚠️ Alterações afetam a execução imediatamente.
+                </span>
+                <button id="btnSalvarConfig" class="btn btn-success gap-2">
+                    💾 Salvar Alterações
+                </button>
             </div>
         </div>
     </dialog>
