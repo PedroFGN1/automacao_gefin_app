@@ -137,70 +137,105 @@ const btnFecharConfig = document.getElementById('btnFecharConfig');
 
 let configAtual = null; // Armazena o JSON original em memória
 
+// LISTA DE CAMPOS QUE O USUÁRIO NÃO PODE EDITAR
+const CHAVES_BLOQUEADAS = [
+    'rascunho'
+];
+
 // Função auxiliar para criar inputs HTML
-function criarInput(label, valor, caminhoChave, tipo = 'text') {
+function criarInput(label, valor, caminhoChave, tipo = 'text', bloqueado = false) {
+    // Se estiver bloqueado, adiciona estilo visual e atributo disabled
+    const disabledAttr = bloqueado ? 'disabled' : '';
+    const labelIcon = bloqueado ? '🔒 ' : '';
+    const inputClass = bloqueado ? 'input-ghost text-gray-500' : 'input-bordered focus:input-primary';
+
     return `
-        <div class="form-control w-full">
-            <label class="label">
-                <span class="label-text font-semibold text-gray-400">${label}</span>
+        <div class="form-control w-full min-w-50">
+            <label class="label pb-1">
+                <span class="label-text font-semibold text-gray-400 text-xs uppercase" title="${caminhoChave}">
+                    ${labelIcon}${label}
+                </span>
             </label>
             <input type="${tipo}" 
-                   class="input input-bordered w-full focus:input-primary data-config-input" 
+                   class="input ${inputClass} input-sm w-full data-config-input" 
                    data-path="${caminhoChave}"
-                   value="${valor || ''}" />
+                   value="${valor !== null && valor !== undefined ? valor : ''}" 
+                   ${disabledAttr} />
         </div>
     `;
+}
+
+function renderizarValorRecursivo(chave, valor, caminhoAtual) {
+    // Se for um Objeto (ex: conta_debito), cria um Grupo Visual
+    if (typeof valor === 'object' && valor !== null && !Array.isArray(valor)) {
+        let htmlGrupo = `
+            <div class="col-span-full bg-base-300 p-3 rounded-md border border-base-content/10 mt-2">
+                <div class="badge badge-neutral mb-2 font-bold">${chave}</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        `;
+        
+        // Itera sobre os filhos (banco, agencia, conta)
+        Object.keys(valor).forEach(subChave => {
+            htmlGrupo += renderizarValorRecursivo(subChave, valor[subChave], `${caminhoAtual}.${subChave}`);
+        });
+
+        htmlGrupo += `</div></div>`;
+        return htmlGrupo;
+    } 
+    // Se for texto/numero normal, cria o Input
+    else {
+        // VERIFICAÇÃO NOVA: Se a chave estiver na lista, bloqueia
+        const estaBloqueado = CHAVES_BLOQUEADAS.includes(chave);
+        
+        return criarInput(chave, valor, caminhoAtual, 'text', estaBloqueado);
+    }
 }
 
 // 1. GERADOR DE FORMULÁRIO (Renderizador)
 function renderizarFormulario(json) {
     let html = '';
 
-    // A. Configurações Globais (Diretório)
-    html += `<div class="bg-base-200 p-4 rounded-lg shadow-sm">
+    // A. Configurações Globais
+    html += `<div class="bg-base-200 p-4 rounded-lg shadow-sm mb-4">
                 <h4 class="text-lg font-bold text-secondary mb-2">📂 Caminhos Padrão</h4>
-                ${criarInput('Diretório de Saída (Relatórios e Prints)', json.diretorio_saida_padrao, 'diretorio_saida_padrao')}
+                ${criarInput('Diretório de Saída', json.diretorio_saida_padrao, 'diretorio_saida_padrao')}
              </div>`;
 
-    // B. Perfis (Loop pelos perfis)
-    json.perfis.forEach((perfil, index) => {
-        const pPath = `perfis[${index}]`; // Caminho base para este perfil
-        
-        html += `
-        <div class="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300">
-            <input type="checkbox" checked /> 
-            <div class="collapse-title text-xl font-medium text-accent flex items-center gap-2">
-                🤖 Perfil: ${perfil.nome}
-            </div>
-            <div class="collapse-content space-y-4 pt-4">
-                
-                <div class="grid grid-cols-1 gap-4">
-                    ${criarInput('URL do Portal (Login)', perfil.url_portal, `${pPath}.url_portal`)}
-                    ${criarInput('URL Direta do Formulário', perfil.url_formulario_direto, `${pPath}.url_formulario_direto`)}
+    // B. Perfis
+    if (json.perfis && Array.isArray(json.perfis)) {
+        json.perfis.forEach((perfil, index) => {
+            const pPath = `perfis[${index}]`;
+            
+            html += `
+            <div class="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300 mb-2">
+                <input type="checkbox" /> 
+                <div class="collapse-title text-xl font-medium text-accent flex items-center gap-2">
+                    🤖 Perfil: ${perfil.nome || 'Sem Nome'}
                 </div>
+                <div class="collapse-content space-y-4 pt-4">
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        ${criarInput('URL Portal', perfil.url_portal, `${pPath}.url_portal`, 'text', true)}
+                        ${criarInput('URL Formulário', perfil.url_formulario_direto, `${pPath}.url_formulario_direto`, 'text', true)}
+                    </div>
 
-                <div class="divider">Mapeamento do Excel</div>
-                
-                <div class="alert alert-info shadow-sm text-xs">
-                    <span>Ajuste aqui se os nomes das colunas no Excel mudarem.</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${Object.keys(perfil.mapeamento_colunas).map(key => 
-                        criarInput(`Coluna Excel para: <b>${key}</b>`, perfil.mapeamento_colunas[key], `${pPath}.mapeamento_colunas.${key}`)
-                    ).join('')}
-                </div>
+                    <div class="divider text-xs font-bold text-base-content/50">MAPEAMENTO EXCEL</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${Object.keys(perfil.mapeamento_colunas || {}).map(key => 
+                            criarInput(key, perfil.mapeamento_colunas[key], `${pPath}.mapeamento_colunas.${key}`)
+                        ).join('')}
+                    </div>
 
-                <div class="divider">Configurações Fixas</div>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    ${Object.keys(perfil.configuracoes_fixas).map(key => 
-                        criarInput(key, perfil.configuracoes_fixas[key], `${pPath}.configuracoes_fixas.${key}`)
-                    ).join('')}
+                    <div class="divider text-xs font-bold text-base-content/50">CONFIGURAÇÕES FIXAS</div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        ${Object.keys(perfil.configuracoes_fixas || {}).map(key => 
+                            renderizarValorRecursivo(key, perfil.configuracoes_fixas[key], `${pPath}.configuracoes_fixas.${key}`)
+                        ).join('')}
+                    </div>
                 </div>
-            </div>
-        </div>`;
-    });
+            </div>`;
+        });
+    }
 
     containerForm.innerHTML = html;
 }

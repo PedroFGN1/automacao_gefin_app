@@ -28,7 +28,124 @@
         "CONTA_CREDITO": "Conta",
         "HISTORICO": "Histórico"
       }
+    },
+    {
+      "id": "restituicao-ipva",
+      "nome": "Restituição de IPVA (68)",
+      "url_portal": "https://portal.go.gov.br/pas-acesso-app/app/#/apps",
+      "url_formulario_direto": "https://siofi.sistemas.go.gov.br/siofi/servlet/control?cmd=EfetuarOPExtra",
+      "url_base_sistema": "https://siofi.sistemas.go.gov.br/siofi",
+      "configuracoes_fixas": {
+        "texto_selecao_inicial": "Restituição de IPVA (68)",
+        "orgao_codigo": "9995",
+        "receita_debito": "199999219054",
+        "tipo_debito_texto": "CUTE",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
+        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "tipo_credito_texto": "Movimento",
+        "enviar_para_banco": "S",
+        "rascunho": "S"
+      },
+      "mapeamento_colunas": {
+        "PROCESSO": "Proc. SEI",
+        "DATA": "Data da restituição",
+        "VALOR": "Valor Atualizado",
+        "NOME": "Beneficiário",
+        "CPF_CNPJ": "CPF | CNPJ (Beneficiário)",
+        "BANCO_CREDITO": "Banco",
+        "AGENCIA_CREDITO": "Agência",
+        "CONTA_CREDITO": "Conta",
+        "MUNUCIPIO": "Município",
+        "HISTORICO": "Histórico"
+      }
+    },
+    {
+      "id": "restituicao-icms",
+      "nome": "Restituição de ICMS (72)",
+      "url_portal": "https://portal.go.gov.br/pas-acesso-app/app/#/apps",
+      "url_formulario_direto": "https://siofi.sistemas.go.gov.br/siofi/servlet/control?cmd=EfetuarOPExtra",
+      "url_base_sistema": "https://siofi.sistemas.go.gov.br/siofi",
+      "configuracoes_fixas": {
+        "texto_selecao_inicial": "Restituição de ICMS (72)",
+        "orgao_codigo": "9995",
+        "receita_debito": "199999219054",
+        "tipo_debito_texto": "CUTE",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
+        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "tipo_credito_texto": "Movimento",
+        "enviar_para_banco": "S",
+        "rascunho": "S"
+      },
+      "mapeamento_colunas": {
+        "PROCESSO": "Proc. SEI",
+        "DATA": "Data da restituição",
+        "VALOR": "Valor Atualizado",
+        "NOME": "Beneficiário",
+        "CPF_CNPJ": "CPF | CNPJ (Beneficiário)",
+        "BANCO_CREDITO": "Banco",
+        "AGENCIA_CREDITO": "Agência",
+        "CONTA_CREDITO": "Conta",
+        "HISTORICO": "Histórico"
+      }
+    },
+    {
+      "id": "restituicao-dre",
+      "nome": "Restituição de D. da Receita Estadual (84)",
+      "url_portal": "https://portal.go.gov.br/pas-acesso-app/app/#/apps",
+      "url_formulario_direto": "https://siofi.sistemas.go.gov.br/siofi/servlet/control?cmd=EfetuarOPExtra",
+      "url_base_sistema": "https://siofi.sistemas.go.gov.br/siofi",
+      "configuracoes_fixas": {
+        "texto_selecao_inicial": "Restituição de Desvinculação da Receita Estadual - DRE (84)",
+        "orgao_codigo": "9995",
+        "receita_debito": "199999219054",
+        "tipo_debito_texto": "CUTE",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
+        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "tipo_credito_texto": "Movimento",
+        "enviar_para_banco": "S",
+        "rascunho": "S"
+      },
+      "mapeamento_colunas": {
+        "PROCESSO": "Proc. SEI",
+        "DATA": "Data da restituição",
+        "VALOR": "Valor Atualizado",
+        "NOME": "Beneficiário",
+        "CPF_CNPJ": "CPF | CNPJ (Beneficiário)",
+        "BANCO_CREDITO": "Banco",
+        "AGENCIA_CREDITO": "Agência",
+        "CONTA_CREDITO": "Conta",
+        "HISTORICO": "Histórico"
+      }
+    },
+    {
+      "id": "restituicao-itcd",
+      "nome": "Restituição de ITCD (73)",
+      "url_portal": "https://portal.go.gov.br/pas-acesso-app/app/#/apps",
+      "url_formulario_direto": "https://siofi.sistemas.go.gov.br/siofi/servlet/control?cmd=EfetuarOPExtra",
+      "url_base_sistema": "https://siofi.sistemas.go.gov.br/siofi",
+      "configuracoes_fixas": {
+        "texto_selecao_inicial": "Restituição de ITCD (73)",
+        "orgao_codigo": "9995",
+        "receita_debito": "199999219054",
+        "tipo_debito_texto": "CUTE",
+        "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
+        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "tipo_credito_texto": "Movimento",
+        "enviar_para_banco": "S",
+        "rascunho": "S"
+      },
+      "mapeamento_colunas": {
+        "PROCESSO": "Proc. SEI",
+        "DATA": "Data da restituição",
+        "VALOR": "Valor Atualizado",
+        "NOME": "Beneficiário",
+        "CPF_CNPJ": "CPF | CNPJ (Beneficiário)",
+        "BANCO_CREDITO": "Banco",
+        "AGENCIA_CREDITO": "Agência",
+        "CONTA_CREDITO": "Conta",
+        "HISTORICO": "Histórico"
+      }
     }
   ],
-  "diretorio_saida_padrao": "C:/AutomacaoFinanceira" 
+  "diretorio_saida_padrao": "C:/AutomacaoFinanceira"
 }
