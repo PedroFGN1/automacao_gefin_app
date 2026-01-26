@@ -19,6 +19,11 @@
                 🤖 Automator GEFIN <span class="badge badge-primary badge-sm">v1.0</span>
             </span>
         </div>
+        <div class="flex-none" style="-webkit-app-region: no-drag">
+            <button id="btnConfig" class="btn btn-square btn-ghost btn-sm" title="Configurações">
+                ⚙️
+            </button>
+        </div>
     </div>
 
     <div class="flex flex-1 p-4 gap-4 overflow-hidden">
@@ -90,6 +95,20 @@
 
     </div>
 
+    <dialog id="modalConfig" class="modal">
+        <div class="modal-box w-11/12 max-w-5xl h-5/6 flex flex-col">
+            <h3 class="font-bold text-lg mb-2">Editar Configurações (profiles.json)</h3>
+            <p class="text-xs text-warning mb-2">Cuidado: A estrutura JSON deve ser mantida corretamente.</p>
+            
+            <textarea id="editorConfig" class="textarea textarea-bordered w-full flex-1 font-mono text-xs bg-base-200" spellcheck="false"></textarea>
+            
+            <div class="modal-action">
+                <button id="btnFecharConfig" class="btn">Cancelar</button>
+                <button id="btnSalvarConfig" class="btn btn-success">Salvar Alterações</button>
+            </div>
+        </div>
+    </dialog>
+    
     <script src="./renderer.js"></script>
 </body>
 

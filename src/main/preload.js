@@ -15,9 +15,14 @@ contextBridge.exposeInMainWorld('api', {
     // Função para abrir seletor de arquivo
     selecionarArquivo: () => ipcRenderer.invoke('dialog:openFile'),
     
-    // Função para iniciar o bot
+    // Funções para controle do bot
     iniciarBot: (dados) => ipcRenderer.invoke('bot:iniciar', dados),
-    
+    pararBot: () => ipcRenderer.invoke('bot:parar'),
+    lerConfig: () => ipcRenderer.invoke('config:ler'),
+
+    // Função para salvar configuração
+    salvarConfig: (json) => ipcRenderer.invoke('config:salvar', json),
+
     // Ouvinte de logs (Do backend para o frontend)
     onLog: (callback) => ipcRenderer.on('bot:log', (event, msg) => callback(msg))
 });

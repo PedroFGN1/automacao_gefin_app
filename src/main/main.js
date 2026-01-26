@@ -3,7 +3,12 @@ const path = require('node:path');
 const fs = require('fs');
 
 const botRestituicao = require('../backend/bots/restituicao-fianca');
-const profiles = require('../../config/profiles.json');
+// Caminho absoluto para o profiles.json
+const caminhoProfiles = path.join(__dirname, '../../config/profiles.json');
+let profiles = require(caminhoProfiles);
+
+// Objeto de controle global para o bot
+let controleExecucao = { abortar: false };
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -62,10 +67,34 @@ app.whenReady().then(() => {
 
       // Roda o Bot
       if (perfilId === 'restituicao-fianca') {
-          return await botRestituicao.executar(configPerfil, caminhoArquivo, dirSaida, enviarLog);
+          return await botRestituicao.executarRestituicaoFianca(configPerfil, caminhoArquivo, dirSaida, enviarLog);
       }
       
       return { sucesso: false, erro: 'Bot não implementado para este perfil' };
+  });
+
+  // Handler: PARAR
+  ipcMain.handle('bot:parar', async () => {
+      controleExecucao.abortar = true;
+      logger.gravarLogSistema('Solicitação de parada recebida.');
+      return true;
+  });
+
+  // Handler: LER CONFIG (Para a tela de edição)
+  ipcMain.handle('config:ler', async () => {
+      return fs.readFileSync(caminhoProfiles, 'utf-8');
+  });
+
+  // Handler: SALVAR CONFIG
+  ipcMain.handle('config:salvar', async (event, novoConteudoJSON) => {
+      try {
+          // Valida se é JSON válido antes de salvar
+          JSON.parse(novoConteudoJSON); 
+          fs.writeFileSync(caminhoProfiles, novoConteudoJSON, 'utf-8');
+          return { sucesso: true };
+      } catch (e) {
+          return { sucesso: false, erro: 'JSON Inválido: ' + e.message };
+      }
   });
 
   createWindow()

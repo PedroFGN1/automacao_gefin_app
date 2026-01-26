@@ -3,29 +3,36 @@ const path = require('path');
 const fileUtils = require('../utils/file-utils');
 const pptUtils = require('../utils/puppeteer-utils');
 const navUtils = require('../utils/navigation-utils');
+const logger = require('../utils/logger');
 const { dialog } = require('electron');
 
 // Função Principal exportada para o Electron
-async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
+async function executarRestituicaoFianca(configPerfil, caminhoExcel, diretorioSaida, enviarLog, controle) {
     // enviarLog: função callback para mandar mensagens para a tela (frontend)
 
-    enviarLog('🚀 Inicializando Bot de Restituição de Fiança...');
+    // Helper para logar na tela E no arquivo txt ao mesmo tempo
+    const logTotal = (msg) => {
+        enviarLog(msg);
+        logger.gravarLogSistema(`[BOT] ${msg}`);
+    };
+
+    logTotal('🚀 Inicializando Bot de Restituição de Fiança...');
     let browser = null;
     const resultados = []; // Armazena status de cada linha para o relatório final
 
     try {
         // 1. Preparar Pastas
-        enviarLog('📂 Preparando diretórios de evidências...');
+        logTotal('📂 Preparando diretórios de evidências...');
         const diretorios = fileUtils.prepararDiretorios(diretorioSaida, 'Restituicao-Fianca');
-        enviarLog(`   ↳ Salvo em: ${diretorios.base}`);
+        logTotal(`   ↳ Salvo em: ${diretorios.base}`);
 
         // 2. Ler Excel (Usando exceljs)
-        enviarLog(`📊 Lendo planilha: ${caminhoExcel}`);
+        logTotal(`📊 Lendo planilha: ${caminhoExcel}`);
         const dados = await fileUtils.lerExcelInput(caminhoExcel);
-        enviarLog(`   ✅ ${dados.length} linhas encontradas.`);
+        logTotal(`   ✅ ${dados.length} linhas encontradas.`);
 
         // 3. Abrir Navegador
-        enviarLog('🌍 Abrindo navegador...');
+        logTotal('🌍 Abrindo navegador...');
         browser = await puppeteer.launch({ 
             headless: false, 
             defaultViewport: null, 
@@ -34,11 +41,11 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
         const page = await browser.newPage();
 
         // 4. Login Manual (Handshake)
-        enviarLog('🔐 Acedendo ao portal para Login...');
+        logTotal('🔐 Acedendo ao portal para Login...');
         await page.goto(configPerfil.url_portal, { waitUntil: 'domcontentloaded' });
         
-        enviarLog('⚠️  AÇÃO NECESSÁRIA: Faça o Login manualmente no navegador.');
-        enviarLog('👉 O robô aguarda você estar na tela do SIOFI. ⚠️  Aguardando confirmação do usuário...');
+        logTotal('⚠️  AÇÃO NECESSÁRIA: Faça o Login manualmente no navegador.');
+        logTotal('👉 O robô aguarda você estar na tela do SIOFI. ⚠️  Aguardando confirmação do usuário...');
 
         const respostaUsuario = await dialog.showMessageBox({
             type: 'info',
@@ -55,15 +62,21 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
             throw new Error('Operação cancelada pelo usuário durante o login.');
         }
 
-        enviarLog('✅ Confirmação recebida! Iniciando automação...');
+        logTotal('✅ Confirmação recebida! Iniciando automação...');
 
         // 5. Loop Stateless
         for (let i = 0; i < dados.length; i++) {
+            // --- VERIFICAÇÃO DE PARADA ---
+            if (controle && controle.abortar) {
+                logTotal('⏹️  Processo interrompido pelo usuário.');
+                break; // Sai do loop for
+            }
+
             const linha = dados[i];
             const numLinha = i + 1;
             const idProcesso = linha[configPerfil.mapeamento_colunas.PROCESSO] || `Linha_${numLinha}`;
             
-            enviarLog(`▶️  Processando ${numLinha}/${dados.length} - Processo: ${idProcesso}`);
+            logTotal(`▶️  Processando ${numLinha}/${dados.length} - Processo: ${idProcesso}`);
 
             try {
                 // A. Navegação Direta
@@ -265,10 +278,10 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
                 
                 // Registra Sucesso
                 resultados.push({ status: 'SUCESSO', dados: linha, mensagem: 'Processado OK' });
-                enviarLog(`   ✅ Sucesso!`);
+                logTotal(`   ✅ Sucesso!`);
 
             } catch (erroLinha) {
-                enviarLog(`   ❌ Erro na linha: ${erroLinha.message}`);
+                logTotal(`   ❌ Erro na linha: ${erroLinha.message}`);
                 
                 const screenshotPath = path.join(diretorios.evidencias, `${idProcesso}_ERRO.png`);
                 await page.screenshot({ path: screenshotPath, fullPage: true }).catch(()=>{});
@@ -278,21 +291,21 @@ async function executar(configPerfil, caminhoExcel, diretorioSaida, enviarLog) {
         }
 
         // 6. Finalização e Relatórios
-        enviarLog('💾 Gerando relatórios finais...');
+        logTotal('💾 Gerando relatórios finais...');
         const resumo = await fileUtils.exportarRelatorios(diretorios.planilhas, resultados);
         
-        enviarLog('🏁 PROCESSO CONCLUÍDO!');
-        enviarLog(`   Sucessos: ${resumo.qtdSucesso} | Erros: ${resumo.qtdErro}`);
-        enviarLog(`   Arquivos salvos em: ${diretorios.base}`);
+        logTotal('🏁 PROCESSO CONCLUÍDO!');
+        logTotal(`   Sucessos: ${resumo.qtdSucesso} | Erros: ${resumo.qtdErro}`);
+        logTotal(`   Arquivos salvos em: ${diretorios.base}`);
 
         return { sucesso: true, resumo };
 
     } catch (error) {
-        enviarLog(`❌ ERRO FATAL NO BOT: ${error.message}`);
+        logTotal(`❌ ERRO FATAL NO BOT: ${error.message}`);
         return { sucesso: false, erro: error.message };
     } finally {
         if (browser) await browser.close();
     }
 }
 
-module.exports = { executar };
+module.exports = { executarRestituicaoFianca };

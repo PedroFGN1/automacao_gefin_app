@@ -21,9 +21,11 @@ async function resultado() {
 const btnArquivo = document.getElementById('btnArquivo');
 const labelArquivo = document.getElementById('labelArquivo');
 const btnIniciar = document.getElementById('btnIniciar');
+const btnParar = document.getElementById('btnParar');
 const selectPerfil = document.getElementById('selectPerfil');
 const logArea = document.getElementById('logArea');
 const statusTexto = document.getElementById('statusTexto');
+const btnLimparLog = document.getElementById('btnLimparLog');
 
 let caminhoArquivoSelecionado = null;
 
@@ -58,7 +60,6 @@ function adicionarLog(mensagem) {
 
 // --- EVENTOS ---
 
-// 1. Botão Escolher Arquivo
 btnArquivo.addEventListener('click', async () => {
     // Chama o backend via preload
     const caminho = await window.api.selecionarArquivo();
@@ -77,7 +78,6 @@ btnArquivo.addEventListener('click', async () => {
     }
 });
 
-// 2. Botão Iniciar
 btnIniciar.addEventListener('click', async () => {
     if (!caminhoArquivoSelecionado) return;
 
@@ -86,6 +86,7 @@ btnIniciar.addEventListener('click', async () => {
     // Trava a interface para evitar duplo clique
     btnIniciar.disabled = true;
     btnArquivo.disabled = true;
+    btnParar.disabled = false; // Habilita o parar
     statusTexto.innerText = "Executando...";
     statusTexto.className = "stat-value text-2xl text-warning animate-pulse";
     
@@ -111,6 +112,51 @@ btnIniciar.addEventListener('click', async () => {
     // Destrava a interface
     btnIniciar.disabled = false;
     btnArquivo.disabled = false;
+    btnParar.disabled = true; // Desabilita o parar
+});
+
+btnParar.addEventListener('click', async () => {
+    adicionarLog('⚠️ Enviando sinal de parada...');
+    await window.api.pararBot();
+    btnParar.disabled = true; // Evita cliques múltiplos
+});
+
+btnLimparLog.addEventListener('click', () => {
+    logArea.innerHTML = ''; // Limpa visualmente
+    adicionarLog('🧹 Terminal limpo pelo usuário.');
+});
+
+// --- SISTEMA DE CONFIGURAÇÃO (Modal) ---
+const btnConfig = document.getElementById('btnConfig');
+const modalConfig = document.getElementById('modalConfig');
+const editorConfig = document.getElementById('editorConfig');
+const btnSalvarConfig = document.getElementById('btnSalvarConfig');
+const btnFecharConfig = document.getElementById('btnFecharConfig');
+
+// Abrir Modal
+btnConfig.addEventListener('click', async () => {
+    const jsonContent = await window.api.lerConfig();
+    editorConfig.value = jsonContent;
+    modalConfig.showModal();
+});
+
+// Fechar Modal
+btnFecharConfig.addEventListener('click', () => {
+    modalConfig.close();
+});
+
+// Salvar Config
+btnSalvarConfig.addEventListener('click', async () => {
+    const novoJson = editorConfig.value;
+    const resultado = await window.api.salvarConfig(novoJson);
+    
+    if (resultado.sucesso) {
+        alert('Configurações salvas com sucesso!');
+        modalConfig.close();
+        adicionarLog('⚙️ Configurações atualizadas.');
+    } else {
+        alert('Erro ao salvar: ' + resultado.erro);
+    }
 });
 
 // 3. Ouvinte de Logs vindos do Backend (Node.js)
