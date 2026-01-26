@@ -2723,6 +2723,13 @@
       }
     }
   }
+  .btn-md {
+    @layer daisyui.l1.l2 {
+      --fontsize: 0.875rem;
+      --btn-p: 1rem;
+      --size: calc(var(--size-field, 0.25rem) * 10);
+    }
+  }
   .btn-sm {
     @layer daisyui.l1.l2 {
       --fontsize: 0.75rem;
