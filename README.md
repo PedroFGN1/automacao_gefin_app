@@ -57,6 +57,7 @@ automacao_gefin_app/
 │   │   └── utils/          # Funções reutilizáveis (aquelas que criamos)
 │   │       ├── puppeteer-utils.js  # (aguardarContexto, preencherTexto...)
 │   │       ├── excel-utils.js      # (Ler planilha, validar colunas)
+│   │       ├── file-utils.js     # (Exportar relatórios, salvar prints)
 │   │       └── navigation-utils.js # (Login, busca de frames)
 │   └── frontend/           # PROCESSO DE RENDERIZAÇÃO (Interface)
 │       ├── index.html
@@ -64,9 +65,11 @@ automacao_gefin_app/
 │       └── styles/         # CSS
 │           ├── input.css
 │           └── output.css (gerado pelo Tailwind)
-├── logs/                   # Pasta para salvar logs em txt (opcional)
+├── logs/                   # Pasta para salvar logs em txt
 ├── package.json
 ├── tailwind.config.js
+├── AutomatorGEFIN.bat      # Executável portátil (inicia o app)
+├── README.md
 └── .gitignore
 ```
 
