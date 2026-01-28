@@ -38,10 +38,10 @@
       "configuracoes_fixas": {
         "texto_selecao_inicial": "Restituição de IPVA (68)",
         "orgao_codigo": "9995",
-        "receita_debito": "199999219054",
+        "receita_debito": "111251019001",
         "tipo_debito_texto": "CUTE",
         "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
-        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "ddr_debito_texto": "9995.15000100.00000.0000 - 2022-CONTA CORRENTE BANCÁRIA 10.000-4 FUTURA CONTA ÚNICA DO ESTADO DE GOIÁS",
         "tipo_credito_texto": "Movimento",
         "enviar_para_banco": "S",
         "rascunho": "S"
@@ -55,7 +55,7 @@
         "BANCO_CREDITO": "Banco",
         "AGENCIA_CREDITO": "Agência",
         "CONTA_CREDITO": "Conta",
-        "MUNUCIPIO": "Município",
+        "CODIGO_MUNICIPIO": "Código Município",
         "HISTORICO": "Histórico"
       }
     },
@@ -71,7 +71,7 @@
         "receita_debito": "199999219054",
         "tipo_debito_texto": "CUTE",
         "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
-        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "ddr_debito_texto": "9995.15000100.00000.0000 - 2022-CONTA CORRENTE BANCÁRIA 10.000-4 FUTURA CONTA ÚNICA DO ESTADO DE GOIÁS",
         "tipo_credito_texto": "Movimento",
         "enviar_para_banco": "S",
         "rascunho": "S"
@@ -129,7 +129,7 @@
         "receita_debito": "199999219054",
         "tipo_debito_texto": "CUTE",
         "conta_debito": { "banco": "104", "agencia": "4204", "conta": "05734669195" },
-        "ddr_debito_texto": "9995.17990142.00000.0000 - 2022-CONTROLE DE RECEITA SEM DETALHAMENTO",
+        "ddr_debito_texto": "9995.15000100.00000.0000 - 2022-CONTA CORRENTE BANCÁRIA 10.000-4 FUTURA CONTA ÚNICA DO ESTADO DE GOIÁS",
         "tipo_credito_texto": "Movimento",
         "enviar_para_banco": "S",
         "rascunho": "S"

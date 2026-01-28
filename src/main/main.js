@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain, nativeTheme, dialog } = require('electron')
 const path = require('node:path');
 const fs = require('fs');
 
-const botRestituicao = require('../backend/bots/restituicao-fianca');
+const botRestituicaoFianca = require('../backend/bots/restituicao-fianca');
+const botRestituicaoIPVA = require('../backend/bots/restituicao-ipva');
 // Caminho absoluto para o profiles.json
 const caminhoProfiles = path.join(__dirname, '../../config/profiles.json');
 let profiles = require(caminhoProfiles);
@@ -67,7 +68,10 @@ app.whenReady().then(() => {
 
       // Roda o Bot
       if (perfilId === 'restituicao-fianca') {
-          return await botRestituicao.executarRestituicaoFianca(configPerfil, caminhoArquivo, dirSaida, enviarLog);
+          return await botRestituicaoFianca.executarRestituicaoFianca(configPerfil, caminhoArquivo, dirSaida, enviarLog, controleExecucao);
+      }
+      if (perfilId === 'restituicao-ipva') {
+          return await botRestituicaoIPVA.executarRestituicaoIPVA(configPerfil, caminhoArquivo, dirSaida, enviarLog, controleExecucao);
       }
       
       return { sucesso: false, erro: 'Bot não implementado para este perfil' };
