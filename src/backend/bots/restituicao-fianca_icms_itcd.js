@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const { dialog } = require('electron');
 
 // Função Principal exportada para o Electron
-async function executarRestituicaoFianca(configPerfil, caminhoExcel, diretorioSaida, enviarLog, controle) {
+async function executarRestituicao_Fianca_ICMS_ITCD(configPerfil, caminhoExcel, diretorioSaida, enviarLog, controle) {
     // enviarLog: função callback para mandar mensagens para a tela (frontend)
 
     // Helper para logar na tela E no arquivo txt ao mesmo tempo
@@ -268,7 +268,7 @@ async function executarRestituicaoFianca(configPerfil, caminhoExcel, diretorioSa
                     console.warn('      ⚠️ Situação incerta: Não apareceu botão de confirmação nem alerta.');
                     await page.screenshot({ path: path.join(diretorios.evidencias,`${idProcesso}_ERRO_INCERTO.png`), fullPage: true });
                 }
-
+                
                 await navUtils.delay(2000);
                 // Para teste inicial, vamos apenas tirar print
                 
@@ -308,4 +308,4 @@ async function executarRestituicaoFianca(configPerfil, caminhoExcel, diretorioSa
     }
 }
 
-module.exports = { executarRestituicaoFianca };
+module.exports = { executarRestituicao_Fianca_ICMS_ITCD };

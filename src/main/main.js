@@ -2,8 +2,9 @@ const { app, BrowserWindow, ipcMain, nativeTheme, dialog } = require('electron')
 const path = require('node:path');
 const fs = require('fs');
 
-const botRestituicaoFianca = require('../backend/bots/restituicao-fianca');
+const botRestituicao_Fianca_ICMS_ITCD = require('../backend/bots/restituicao-fianca_icms_itcd');
 const botRestituicaoIPVA = require('../backend/bots/restituicao-ipva');
+
 // Caminho absoluto para o profiles.json
 const caminhoProfiles = path.join(__dirname, '../../config/profiles.json');
 let profiles = require(caminhoProfiles);
@@ -67,8 +68,8 @@ app.whenReady().then(() => {
       };
 
       // Roda o Bot
-      if (perfilId === 'restituicao-fianca') {
-          return await botRestituicaoFianca.executarRestituicaoFianca(configPerfil, caminhoArquivo, dirSaida, enviarLog, controleExecucao);
+      if (perfilId === 'restituicao-fianca' || perfilId === 'restituicao-icms' || perfilId === 'restituicao-itcd') {
+          return await botRestituicao_Fianca_ICMS_ITCD.executarRestituicao_Fianca_ICMS_ITCD(configPerfil, caminhoArquivo, dirSaida, enviarLog, controleExecucao);
       }
       if (perfilId === 'restituicao-ipva') {
           return await botRestituicaoIPVA.executarRestituicaoIPVA(configPerfil, caminhoArquivo, dirSaida, enviarLog, controleExecucao);
