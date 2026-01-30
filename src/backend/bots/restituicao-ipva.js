@@ -271,15 +271,41 @@ async function executarRestituicaoIPVA(configPerfil, caminhoExcel, diretorioSaid
                     await page.screenshot({ path: path.join(diretorios.evidencias,`${idProcesso}_ERRO_INCERTO.png`), fullPage: true });
                 }
 
-                await navUtils.delay(2000);
-                // Para teste inicial, vamos apenas tirar print
+                // CAPTURA DO NÚMERO OP
+                let textoCapturado = '';
+                let numeroOP = 'Não gerado'; // Valor padrão caso falhe
+
+                try {
+                    // O seletor pega a classe 'titulo2' (mesmo sendo tag font)
+                    await page.waitForSelector('.titulo2', { timeout: 5000 });
+                    
+                    textoCapturado = await page.$eval('.titulo2', el => el.innerText);
+                    // O texto vem como: "OP extra-orçamentária n 2026.9995.0739 efetuada com sucesso."
+
+                    // LIMPEZA (REGEX)
+                    // Procura por um padrão de números e pontos (ex: 2026.9995.0739)
+                    const match = textoCapturado.match(/[\d]{4}\.[\d]{4}\.[\d]{4}/);
+                    
+                    if (match) {
+                        numeroOP = match[0]; // Pega apenas "2026.9995.0739"
+                    } else {
+                        numeroOP = textoCapturado; // Se não achar o padrão, salva o texto todo por segurança
+                    }
+                } catch (e) {
+                    if (configPerfil.configuracoes_fixas.rascunho === 'N') {
+                        logTotal(`⚠️ Aviso: Não consegui ler o número da OP na linha ${numLinha}.`);
+                    } 
+                }
+
+                logTotal(`✅ Sucesso Linha ${numLinha} - OP: ${numeroOP}`);
+                await navUtils.delay(1000);
                 
 
                 const screenshotPath = path.join(diretorios.evidencias, `${idProcesso}_SUCESSO.png`);
                 await page.screenshot({ path: screenshotPath, fullPage: true });
                 
                 // Registra Sucesso
-                resultados.push({ status: 'SUCESSO', dados: linha, mensagem: 'Processado OK' });
+                resultados.push({ status: 'SUCESSO',  linha: numLinha, dados: linha, mensagem: 'Processado com sucesso', numero_op: numeroOP });
                 logTotal(`   ✅ Sucesso!`);
 
             } catch (erroLinha) {
@@ -288,7 +314,7 @@ async function executarRestituicaoIPVA(configPerfil, caminhoExcel, diretorioSaid
                 const screenshotPath = path.join(diretorios.evidencias, `${idProcesso}_ERRO.png`);
                 await page.screenshot({ path: screenshotPath, fullPage: true }).catch(()=>{});
 
-                resultados.push({ status: 'ERRO', dados: linha, mensagem: erroLinha.message });
+                resultados.push({ status: 'ERRO', linha: numLinha, dados: linha, mensagem: erroLinha.message, numeroOP: '' });
             }
         }
 

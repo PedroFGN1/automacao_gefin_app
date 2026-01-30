@@ -2,13 +2,13 @@
 
 **Autor:** Manus AI
 **Data:** 22 de Janeiro de 2026
-**Objetivo:** Documentar o fluxo operacional e as lógicas de interação do script `robo-fase2.js` para garantir a manutenção e a replicação de suas funcionalidades em estruturas modulares.
+**Objetivo:** Documentar o fluxo operacional e as lógicas de interação do script `restituicao-fianca_icms_itcd.js` para garantir a manutenção e a replicação de suas funcionalidades em estruturas modulares.
 
 ---
 
 ## 1. Visão Geral do Fluxo
 
-O script `robo-fase2.js` implementa um robô de automação baseado em Puppeteer, projetado para processar dados de uma planilha Excel e preencher um formulário de "Restituição de Depósito de Fiança" em um sistema web. O fluxo é caracterizado por um **loop stateless** (à prova de falhas), onde cada linha da planilha é processada de forma independente, começando sempre do formulário limpo.
+O script `restituicao-fianca_icms_itcd.js` implementa um robô de automação baseado em Puppeteer, projetado para processar dados de uma planilha Excel e preencher um formulário de "Restituição de Depósito de Fiança" em um sistema web. O fluxo é caracterizado por um **loop stateless** (à prova de falhas), onde cada linha da planilha é processada de forma independente, começando sempre do formulário limpo.
 
 O fluxo principal é dividido em três grandes etapas: **Inicialização**, **Loop de Processamento** e **Finalização**.
 

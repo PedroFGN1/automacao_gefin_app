@@ -59,10 +59,11 @@ async function exportarRelatorios(caminhoPlanilhas, listaResultados) {
     const hora = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
     
     // Filtros
-    const sucessos = listaResultados.filter(r => r.status === 'SUCESSO').map(r => r.dados);
+    const sucessos = listaResultados.filter(r => r.status === 'SUCESSO').map(r => ({...r.dados, OP: r.numero_op}));
     const erros = listaResultados.filter(r => r.status === 'ERRO').map(r => ({
         ...r.dados,
-        MOTIVO_ERRO: r.mensagem
+        MOTIVO_ERRO: r.mensagem,
+        OP: r.numeroOP
     }));
 
     // Função interna para criar e salvar
